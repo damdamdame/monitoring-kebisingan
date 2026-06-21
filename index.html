@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Monitoring Kebisingan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        /* Membuat tinggi kartu dan grafik sama */
+        .equal-height { height: 100%; min-height: 400px; }
+        .card-db { border-radius: 20px; border: none; box-shadow: 0 8px 20px rgba(0,0,0,0.1); transition: 0.5s; }
+        #nilai-db { font-size: 6rem; font-weight: 800; line-height: 1; }
+        .iframe-container { border-radius: 20px; overflow: hidden; background: white; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-light bg-white shadow-sm mb-4">
+    <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#">
+                <i class="bi bi-mic-fill"></i> NOISE MONITOR
+            </a>
+            <button onclick="prosesLogin()" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-person-lock"></i> Login Admin
+            </button>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h2 class="mb-5 text-center text-dark fw-bold text-uppercase">Sistem Monitoring Kebisingan Real-Time</h2>
+        <p class="text-muted">
+            <i class="bi bi-geo-alt-fill text-danger"></i> Lokasi: Gerbang Tol Bekasi Barat | 
+            <i class="bi bi-clock-fill text-primary"></i> Terakhir Update: <span id="time-update">--:--:--</span>
+        </p>
+        
+        <div class="row g-4 justify-content-center">
+            <div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 p-3">
+            <h5 class="text-muted"><i class="bi bi-info-circle"></i> Standar Kebisingan (WHO)</h5>
+            <div class="table-responsive">
+                <table class="table table-sm text-center mb-0">
+                    <thead>
+                        <tr>
+                            <th>< 55 dB</th>
+                            <th>55 - 75 dB</th>
+                            <th>> 75 dB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge bg-success">Tenang</span><br><small>Perpustakaan / Kantor</small></td>
+                            <td><span class="badge bg-warning text-dark">Bising</span><br><small>Lalu Lintas / Percakapan</small></td>
+                            <td><span class="badge bg-danger">Bahaya</span><br><small>Mesin Pabrik / Konser</small></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+            <div class="col-md-6">
+                <div id="kartu-status" class="card card-db bg-white p-4 equal-height d-flex flex-column justify-content-center text-center">
+                    <div class="card-body">
+                        <h5 class="text-muted text-uppercase mb-3">Tingkat Suara</h5>
+                        <div id="nilai-db" class="text-primary">--</div>
+                        <h3 class="fw-light">Desibel (dB)</h3>
+                        <hr class="my-4">
+                        <div id="label-status" class="h4 fw-bold">Menghubungkan...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="iframe-container equal-height p-2">
+                    <h5 class="text-muted text-center text-uppercase mt-2 mb-3">Riwayat Kebisingan</h5>
+                    <iframe width="100%" height="320" style="border: none;" src="https://thingspeak.com/channels/3345623/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
+                </div>
+            </div>
+
+        </div> <div class="text-center mt-4">
+            <p class="text-muted italic">Data dari sensor diperbarui otomatis setiap 20 detik</p>
+        </div>
+    </div>
+
+    <script>
+        const channelID = '3345623'; 
+        const readKey   = '0W528YBIX3FL8R9Q'; 
+
+        async function ambilData() {
+            try {
+                const response = await fetch(`https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readKey}&results=1`);
+                const data = await response.json();
+                
+                const dbValue = parseFloat(data.feeds[0].field1).toFixed(1);
+                document.getElementById('nilai-db').innerText = dbValue;
+                document.getElementById('time-update').innerText = new Date().toLocaleTimeString();
+                
+                const kartu = document.getElementById('kartu-status');
+                const label = document.getElementById('label-status');
+                const angka = document.getElementById('nilai-db');
+
+                if (dbValue < 55) {
+                    kartu.className = "card card-db bg-success text-white p-4 equal-height d-flex flex-column justify-content-center text-center";
+                    label.innerText = "KONDISI: TENANG";
+                    angka.className = "text-white";
+                } else if (dbValue >= 55 && dbValue < 75) {
+                    kartu.className = "card card-db bg-warning text-dark p-4 equal-height d-flex flex-column justify-content-center text-center";
+                    label.innerText = "KONDISI: BISING";
+                    angka.className = "text-dark";
+                } else {
+                    kartu.className = "card card-db bg-danger text-white p-4 equal-height d-flex flex-column justify-content-center text-center";
+                    label.innerText = "KONDISI: BAHAYA!";
+                    angka.className = "text-white";
+                }
+
+            } catch (error) {
+                console.log("Gagal ambil data:", error);
+            }
+        }
+
+        setInterval(ambilData, 20000);
+        ambilData();
+        function prosesLogin() {
+    const userBenar = "admin";
+    const passBenar = "12345";
+
+    let userInput = prompt("Masukkan Username:");
+    let passInput = prompt("Masukkan Password:");
+
+    if (userInput === userBenar && passInput === passBenar) {
+        alert("Akses Diberikan. Selamat datang!");
+        window.location.href = "admin_dashboard.html";
+    } else {
+        alert("Username atau Password salah!");
+    }
+}
+    </script>
+    
+
+</body>
+</html>
