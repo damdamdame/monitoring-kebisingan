@@ -119,16 +119,29 @@
 
         /* FORMAT ATURAN CETAK PDF FORMAL */
         /* FORMAT ATURAN CETAK PDF FORMAL */
+        /* FORMAT ATURAN CETAK PDF FORMAL - DIOPTIMALKAN UNTUK 1 HALAMAN */
         @media print {
+            @page {
+                size: A4;
+                margin: 10mm 15mm 10mm 15mm; /* Memperkecil margin kertas agar ruang cetak lebih luas */
+            }
             body {
                 background-color: white;
                 padding: 0;
+                margin: 0;
             }
             .header, .btn-public, .btn-pdf, .right-panel, .card-header-flex h3 {
                 display: none !important;
             }
             .print-only-header {
                 display: block !important;
+                margin-bottom: 15px; /* Memperkecil jarak bawah kop surat */
+            }
+            .print-only-header h1 {
+                font-size: 16px; /* Mengecilkan sedikit ukuran font kop surat */
+            }
+            .print-only-header p {
+                font-size: 11px;
             }
             .main-container {
                 display: block;
@@ -141,18 +154,26 @@
                 width: 100%;
             }
             .iframe-container {
-                height: 380px;
-                width: 100%; /* Paksa container grafik melebar penuh */
-                margin-bottom: 25px;
-                page-break-inside: avoid;
+                height: 240px; /* Mengecilkan tinggi box grafik secara drastis khusus saat cetak */
+                width: 100%;
+                margin-bottom: 15px;
             }
             iframe {
-                width: 100% !important; /* Paksa iframe ThingSpeak memenuhi halaman */
+                width: 100% !important;
+                height: 100% !important;
+            }
+            h3 {
+                font-size: 14px !important;
+                margin-top: 15px !important;
+                margin-bottom: 5px !important;
             }
             .report-table {
                 width: 100%;
-                margin-top: 10px;
-                page-break-inside: avoid;
+                margin-top: 5px;
+                font-size: 11px; /* Mengecilkan ukuran tulisan tabel agar muat dalam 1 halaman */
+            }
+            .report-table th, .report-table td {
+                padding: 5px 8px; /* Merapatkan spasi baris tabel */
             }
         }
     </style>
