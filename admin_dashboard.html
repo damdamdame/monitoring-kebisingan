@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Kontrol Admin IoT - RW 16 Jakasampurna</title>
+    <!-- Memanggil Chart.js resmi untuk membuat grafik garis kustom tanpa iframe -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             box-sizing: border-box;
-            font-family: 'Times New Roman', Times, serif; /* Menggunakan font formal untuk laporan ilmiah */
+            font-family: 'Times New Roman', Times, serif;
             margin: 0;
             padding: 0;
         }
@@ -66,16 +68,11 @@
             font-weight: bold;
             font-size: 14px;
         }
-        .iframe-container {
+        .chart-container {
             width: 100%;
-            height: 350px;
+            height: 280px;
             margin-bottom: 20px;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
+            position: relative;
         }
         .btn-restart {
             width: 100%;
@@ -88,8 +85,6 @@
             border-radius: 6px;
             cursor: pointer;
         }
-        
-        /* Desain Tabel Data Formal */
         .report-table {
             width: 100%;
             border-collapse: collapse;
@@ -105,25 +100,21 @@
             background-color: #f2f2f2;
             font-weight: bold;
         }
-        
-        /* Elemen Kop Surat Dokumen (Tersembunyi di Web, Muncul di PDF) */
         .print-only-header {
             display: none;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border-bottom: 3px double #000;
             padding-bottom: 10px;
         }
-        .print-only-header h1 { font-size: 20px; font-weight: bold; text-transform: uppercase; }
-        .print-only-header p { font-size: 14px; margin-top: 5px; }
+        .print-only-header h1 { font-size: 18px; font-weight: bold; text-transform: uppercase; }
+        .print-only-header p { font-size: 13px; margin-top: 5px; }
 
-        /* FORMAT ATURAN CETAK PDF FORMAL */
-        /* FORMAT ATURAN CETAK PDF FORMAL */
-        /* FORMAT ATURAN CETAK PDF FORMAL - DIOPTIMALKAN UNTUK 1 HALAMAN */
+        /* ATURAN PENGATURAN HALAMAN PDF 1 HALAMAN LENGKAP */
         @media print {
             @page {
                 size: A4;
-                margin: 10mm 15mm 10mm 15mm; /* Memperkecil margin kertas agar ruang cetak lebih luas */
+                margin: 12mm 15mm 12mm 15mm;
             }
             body {
                 background-color: white;
@@ -135,13 +126,6 @@
             }
             .print-only-header {
                 display: block !important;
-                margin-bottom: 15px; /* Memperkecil jarak bawah kop surat */
-            }
-            .print-only-header h1 {
-                font-size: 16px; /* Mengecilkan sedikit ukuran font kop surat */
-            }
-            .print-only-header p {
-                font-size: 11px;
             }
             .main-container {
                 display: block;
@@ -153,14 +137,10 @@
                 border: none;
                 width: 100%;
             }
-            .iframe-container {
-                height: 240px; /* Mengecilkan tinggi box grafik secara drastis khusus saat cetak */
-                width: 100%;
-                margin-bottom: 15px;
-            }
-            iframe {
-                width: 100% !important;
-                height: 100% !important;
+            .chart-container {
+                height: 220px; /* Menyesuaikan tinggi grafik agar muat 1 halaman */
+                margin-bottom: 20px;
+                page-break-inside: avoid;
             }
             h3 {
                 font-size: 14px !important;
@@ -170,17 +150,17 @@
             .report-table {
                 width: 100%;
                 margin-top: 5px;
-                font-size: 11px; /* Mengecilkan ukuran tulisan tabel agar muat dalam 1 halaman */
+                font-size: 11px;
             }
             .report-table th, .report-table td {
-                padding: 5px 8px; /* Merapatkan spasi baris tabel */
+                padding: 5px 8px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header Panel Web -->
+    <!-- Header Panel Web Browser -->
     <div class="header">
         <h2>Panel Kontrol Admin IoT - RW 16 Jakasampurna</h2>
         <a href="index.html" class="btn-public">Lihat Web Publik</a>
@@ -194,19 +174,20 @@
     </div>
 
     <div class="main-container">
-        <!-- Panel Kiri: Grafik & Tabel Data -->
+        <!-- Panel Kiri: Grafik Kustom & Tabel Data -->
         <div class="card">
             <div class="card-header-flex">
                 <h3>Grafik Pemantauan Real-Time</h3>
                 <button class="btn-pdf" onclick="window.print()">🖨️ Cetak Dokumen Laporan (PDF)</button>
             </div>
             
-            <div class="iframe-container">
-                <iframe src="https://thingspeak.com/channels/3345623/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
+            <!-- Tempat menggambar grafik native Chart.js (Bukan Iframe lagi) -->
+            <div class="chart-container">
+                <canvas id="kebisinganChart"></canvas>
             </div>
 
-            <!-- Bagian Tabel Laporan 10 Data Terakhir -->
-            <h3 style="margin-top: 30px; margin-bottom: 10px; font-size: 16px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
+            <!-- Bagian Tabel Laporan Formal -->
+            <h3 style="margin-top: 20px; margin-bottom: 10px; font-size: 16px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
                 Tabel Log Data Hasil Pengukuran (Interval 20 Detik)
             </h3>
             <table class="report-table">
@@ -221,7 +202,7 @@
                 </thead>
                 <tbody id="data-table-body">
                     <tr>
-                        <td colspan="5">Memuat data log dari platform cloud...</td>
+                        <td colspan="5">Menghubungkan ke platform cloud ThingSpeak...</td>
                     </tr>
                 </tbody>
             </table>
@@ -242,35 +223,85 @@
     <script>
         const writeAPIKey = "H6LZ9Z90HCHWBRAB";
         const channelID = "3345623";
+        let myChart = null;
 
-        // Fungsi otomatis mengambil 10 data log terakhir dari ThingSpeak
-        function ambilLogDataThingSpeak() {
+        // Inisialisasi Grafik Chart.js Pertama Kali
+        function inisialisasiGrafik() {
+            const ctx = document.getElementById('kebisinganChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Tingkat Kebisingan (dB)',
+                        data: [],
+                        borderColor: '#d62020', /* Garis merah tipis */
+                        borderWidth: 2,
+                        pointBackgroundColor: '#d62020',
+                        pointRadius: 3,
+                        fill: false, /* PENGUNCI UTAMA: 100% Menghilangkan Warna Hitam di bawah garis */
+                        tension: 0.3 /* Membuat garis sedikit melengkung lembut (spline) */
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false } /* Sembunyikan legenda atas agar bersih */
+                    },
+                    scales: {
+                        y: {
+                            min: 40,
+                            max: 80,
+                            title: { display: true, text: 'Kebisingan (dB)', font: { size: 12, family: 'Times New Roman' } }
+                        },
+                        x: {
+                            title: { display: true, text: 'Waktu Pengukuran', font: { size: 12, family: 'Times New Roman' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fungsi Tunggal Sinkronisasi Mengambil Data dari ThingSpeak untuk Tabel & Grafik
+        function muatDataSistem() {
             const url = `https://api.thingspeak.com/channels/${channelID}/fields/1.json?results=10`;
             
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     const feeds = data.feeds;
-                    const tableBody = document.getElementById("data-table-body");
-                    tableBody.innerHTML = ""; // Bersihkan teks loading
+                    
+                    // 1. UPDATE GRAFIK CHART.JS
+                    const daftarWaktu = [];
+                    const daftarNilaiDb = [];
+                    
+                    feeds.forEach(feed => {
+                        const nilai = parseFloat(feed.field1);
+                        if (!isNaN(nilai)) {
+                            const waktu = new Date(feed.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                            daftarWaktu.push(waktu);
+                            daftarNilaiDb.push(nilai);
+                        }
+                    });
 
-                    // Looping terbalik agar data terbaru berada di atas tabel formal
+                    myChart.data.labels = daftarWaktu;
+                    myChart.data.datasets[0].data = daftarNilaiDb;
+                    myChart.update(); // Render ulang grafik secara halus
+
+                    // 2. UPDATE TABEL FORMAL (Urutan Terbalik: Data Terbaru di Atas)
+                    const tableBody = document.getElementById("data-table-body");
+                    tableBody.innerHTML = ""; 
+
                     let no = 1;
                     for (let i = feeds.length - 1; i >= 0; i--) {
                         const nilaiDb = parseFloat(feeds[i].field1);
-                        
                         if (!isNaN(nilaiDb)) {
-                            // Konversi waktu UTC ThingSpeak ke zona waktu lokal WIB/WITA/WIT
-                            const opsiWaktu = { dateStyle: 'short', timeStyle: 'medium' };
-                            const waktuLokal = new Date(feeds[i].created_at).toLocaleString('id-ID', opsiWaktu);
+                            const waktuLokal = new Date(feeds[i].created_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'medium' });
                             
-                            // Penentuan Status Validasi Ambang Batas
-                            let statusBatas = "";
-                            if (nilaiDb > 55) {
-                                statusBatas = "<span style='color: red; font-weight: bold;'>Baku Mutu Terlampaui (Bising)</span>";
-                            } else {
-                                statusBatas = "<span style='color: green;'>Aman / Normal</span>";
-                            }
+                            let statusBatas = nilaiDb > 55 
+                                ? "<span style='color: red; font-weight: bold;'>Baku Mutu Terlampaui (Bising)</span>" 
+                                : "<span style='color: green;'>Aman / Normal</span>";
 
                             const baris = `
                                 <tr>
@@ -286,30 +317,21 @@
                     }
                 })
                 .catch(error => {
-                    console.error("Gagal mengambil log tabel:", error);
-                    document.getElementById("data-table-body").innerHTML = "<tr><td colspan='5' style='color:red;'>Gagal sinkronisasi data cloud. Silakan refresh halaman.</td></tr>";
+                    console.error("Gagal melakukan sinkronisasi data:", error);
                 });
         }
 
         function kirimPerintahRestart() {
             if (confirm("Apakah Anda yakin ingin me-restart perangkat ESP32 secara jarak jauh?")) {
                 const url = `https://api.thingspeak.com/update?api_key=${writeAPIKey}&field2=1`;
-                
-                fetch(url)
-                    .then(response => {
-                        if (response.ok) {
-                            alert("Perintah restart sukses dikirim ke cloud!");
-                        } else {
-                            alert("Gagal mengirim perintah.");
-                        }
-                    });
+                fetch(url).then(response => { if (response.ok) alert("Perintah restart sukses dikirim!"); });
             }
         }
 
-        // Jalankan fungsi pemuatan log tabel saat web dibuka
-        ambilLogDataThingSpeak();
-        // Refresh otomatis tabel data setiap 20 detik agar sinkron dengan alat fisik
-        setInterval(ambilLogDataThingSpeak, 20000);
+        // Eksekusi Sistem Utama
+        inisialisasiGrafik();
+        muatDataSistem();
+        setInterval(muatDataSistem, 20000); // Sinkronisasi otomatis berkala setiap 20 detik
     </script>
 </body>
 </html>
