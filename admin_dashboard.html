@@ -7,7 +7,7 @@
     <style>
         * {
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Times New Roman', Times, serif; /* Menggunakan font formal untuk laporan ilmiah */
             margin: 0;
             padding: 0;
         }
@@ -36,10 +36,6 @@
             font-size: 14px;
             transition: 0.3s;
         }
-        .btn-public:hover {
-            background-color: white;
-            color: #1a252f;
-        }
         .main-container {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -50,6 +46,7 @@
             padding: 25px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
         }
         .card-header-flex {
             display: flex;
@@ -67,30 +64,18 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 6px;
             font-size: 14px;
-        }
-        .btn-pdf:hover {
-            background-color: #218838;
         }
         .iframe-container {
             width: 100%;
-            height: 300px;
-            border: none;
+            height: 350px;
+            margin-bottom: 20px;
         }
         iframe {
             width: 100%;
             height: 100%;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
-        }
-        .control-text {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 20px;
-            line-height: 1.5;
         }
         .btn-restart {
             width: 100%;
@@ -102,79 +87,132 @@
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: 0.2s;
         }
-        .btn-restart:hover {
-            background-color: #c9302c;
+        
+        /* Desain Tabel Data Formal */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
         }
+        .report-table th, .report-table td {
+            border: 1px solid #000;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        .report-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        /* Elemen Kop Surat Dokumen (Tersembunyi di Web, Muncul di PDF) */
+        .print-only-header {
+            display: none;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px double #000;
+            padding-bottom: 10px;
+        }
+        .print-only-header h1 { font-size: 20px; font-weight: bold; text-transform: uppercase; }
+        .print-only-header p { font-size: 14px; margin-top: 5px; }
 
-        /* Trik Ajaib CSS Khusus untuk Tampilan Cetak PDF */
+        /* FORMAT ATURAN CETAK PDF FORMAL */
+        /* FORMAT ATURAN CETAK PDF FORMAL */
         @media print {
             body {
                 background-color: white;
                 padding: 0;
             }
-            .header, .btn-public, .btn-pdf, .right-panel {
-                display: none !important; /* Hilangkan menu atas, tombol pdf, dan panel tombol restart */
+            .header, .btn-public, .btn-pdf, .right-panel, .card-header-flex h3 {
+                display: none !important;
+            }
+            .print-only-header {
+                display: block !important;
             }
             .main-container {
-                display: block; /* Buat layout jadi full semata wayang */
+                display: block;
+                width: 100%;
             }
             .card {
                 box-shadow: none;
                 padding: 0;
                 border: none;
-            }
-            .card-header-flex h3 {
-                font-size: 24px;
-                margin-bottom: 15px;
-            }
-            /* Menambahkan judul Kop Surat Laporan Otomatis di PDF */
-            .card::before {
-                content: "LAPORAN HASIL MONITORING KEBISINGAN\nRW 16 JAKASAMPURNA\n-------------------------------------------------------------";
-                white-space: pre-wrap;
-                font-size: 20px;
-                font-weight: bold;
-                display: block;
-                margin-bottom: 30px;
-                color: #1a252f;
+                width: 100%;
             }
             .iframe-container {
-                height: 450px; /* Perbesar grafik biar puas dibaca di PDF */
+                height: 380px;
+                width: 100%; /* Paksa container grafik melebar penuh */
+                margin-bottom: 25px;
+                page-break-inside: avoid;
+            }
+            iframe {
+                width: 100% !important; /* Paksa iframe ThingSpeak memenuhi halaman */
+            }
+            .report-table {
+                width: 100%;
+                margin-top: 10px;
+                page-break-inside: avoid;
             }
         }
     </style>
 </head>
 <body>
 
+    <!-- Header Panel Web -->
     <div class="header">
         <h2>Panel Kontrol Admin IoT - RW 16 Jakasampurna</h2>
         <a href="index.html" class="btn-public">Lihat Web Publik</a>
     </div>
 
+    <!-- Kop Surat Resmi khusus cetak PDF -->
+    <div class="print-only-header">
+        <h1>Laporan Hasil Monitoring Tingkat Kebisingan Lingkungan</h1>
+        <h1>Wilayah RW 16 Kelurahan Jakasampurna</h1>
+        <p>Sistem Pemantauan Berbasis Internet of Things (IoT) secara Real-Time</p>
+    </div>
+
     <div class="main-container">
-        <!-- Panel Kiri: Grafik & Download PDF -->
+        <!-- Panel Kiri: Grafik & Tabel Data -->
         <div class="card">
             <div class="card-header-flex">
                 <h3>Grafik Pemantauan Real-Time</h3>
-                <button class="btn-pdf" onclick="window.print()">🖨️ Cetak PDF</button>
+                <button class="btn-pdf" onclick="window.print()">🖨️ Cetak Dokumen Laporan (PDF)</button>
             </div>
+            
             <div class="iframe-container">
                 <iframe src="https://thingspeak.com/channels/3345623/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
             </div>
+
+            <!-- Bagian Tabel Laporan 10 Data Terakhir -->
+            <h3 style="margin-top: 30px; margin-bottom: 10px; font-size: 16px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
+                Tabel Log Data Hasil Pengukuran (Interval 20 Detik)
+            </h3>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Waktu / Stempel Waktu</th>
+                        <th>Parameter Sensor</th>
+                        <th>Nilai Kebisingan (dB)</th>
+                        <th>Status Ambang Batas (WHO / Kepmen LH: 55 dB)</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body">
+                    <tr>
+                        <td colspan="5">Memuat data log dari platform cloud...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <!-- Panel Kanan: Kontrol Hardware -->
         <div class="card right-panel">
             <div class="card-header-flex">
-                <h3>Kendali Hardware (Uplink)</h3>
+                <h3>Kendali Perangkat (Uplink)</h3>
             </div>
-            <p class="control-text">
-                Fitur ini digunakan untuk memaksa mikrokontroler ESP32 melakukan <i>reboot/restart</i> dari jarak jauh jika terjadi malfungsi pada jaringan lokal.
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">
+                Fitur ini digunakan untuk memaksa mikrokontroler ESP32 melakukan <i>reboot/restart</i> dari jarak jauh jika terjadi gangguan pengiriman data.
             </p>
             <button class="btn-restart" onclick="kirimPerintahRestart()">⚡ RESTART PERANGKAT ESP32</button>
         </div>
@@ -184,6 +222,54 @@
         const writeAPIKey = "H6LZ9Z90HCHWBRAB";
         const channelID = "3345623";
 
+        // Fungsi otomatis mengambil 10 data log terakhir dari ThingSpeak
+        function ambilLogDataThingSpeak() {
+            const url = `https://api.thingspeak.com/channels/${channelID}/fields/1.json?results=10`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const feeds = data.feeds;
+                    const tableBody = document.getElementById("data-table-body");
+                    tableBody.innerHTML = ""; // Bersihkan teks loading
+
+                    // Looping terbalik agar data terbaru berada di atas tabel formal
+                    let no = 1;
+                    for (let i = feeds.length - 1; i >= 0; i--) {
+                        const nilaiDb = parseFloat(feeds[i].field1);
+                        
+                        if (!isNaN(nilaiDb)) {
+                            // Konversi waktu UTC ThingSpeak ke zona waktu lokal WIB/WITA/WIT
+                            const opsiWaktu = { dateStyle: 'short', timeStyle: 'medium' };
+                            const waktuLokal = new Date(feeds[i].created_at).toLocaleString('id-ID', opsiWaktu);
+                            
+                            // Penentuan Status Validasi Ambang Batas
+                            let statusBatas = "";
+                            if (nilaiDb > 55) {
+                                statusBatas = "<span style='color: red; font-weight: bold;'>Baku Mutu Terlampaui (Bising)</span>";
+                            } else {
+                                statusBatas = "<span style='color: green;'>Aman / Normal</span>";
+                            }
+
+                            const baris = `
+                                <tr>
+                                    <td>${no++}</td>
+                                    <td>${waktuLokal} WIB</td>
+                                    <td>Intensitas Suara (INMP441)</td>
+                                    <td style="font-weight: bold;">${nilaiDb.toFixed(2)} dB</td>
+                                    <td>${statusBatas}</td>
+                                </tr>
+                            `;
+                            tableBody.innerHTML += baris;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Gagal mengambil log tabel:", error);
+                    document.getElementById("data-table-body").innerHTML = "<tr><td colspan='5' style='color:red;'>Gagal sinkronisasi data cloud. Silakan refresh halaman.</td></tr>";
+                });
+        }
+
         function kirimPerintahRestart() {
             if (confirm("Apakah Anda yakin ingin me-restart perangkat ESP32 secara jarak jauh?")) {
                 const url = `https://api.thingspeak.com/update?api_key=${writeAPIKey}&field2=1`;
@@ -191,17 +277,18 @@
                 fetch(url)
                     .then(response => {
                         if (response.ok) {
-                            alert("Perintah restart sukses dikirim ke cloud! Perangkat akan reboot dalam 10-15 detik.");
+                            alert("Perintah restart sukses dikirim ke cloud!");
                         } else {
-                            alert("Gagal mengirim perintah restart. Coba lagi.");
+                            alert("Gagal mengirim perintah.");
                         }
-                    })
-                    .catch(error => {
-                        console.error("Error:", error);
-                        alert("Terjadi kesalahan koneksi saat mengirim perintah.");
                     });
             }
         }
+
+        // Jalankan fungsi pemuatan log tabel saat web dibuka
+        ambilLogDataThingSpeak();
+        // Refresh otomatis tabel data setiap 20 detik agar sinkron dengan alat fisik
+        setInterval(ambilLogDataThingSpeak, 20000);
     </script>
 </body>
 </html>
